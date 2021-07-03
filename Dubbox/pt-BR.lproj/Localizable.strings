@@ -1,0 +1,19 @@
+/* 
+  Localizable.strings
+  Dubbox
+
+  Created by Manoel Filho on 02/07/21.
+  
+*/
+
+//LOGIN PAGE
+
+"Email" = "Email";
+"Write your email" = "Digite seu email";
+"Password" = "Senha";
+"Write your password" = "Digite sua senha";
+"Did you lost your password?" = "Esqueceu a senha?";
+"Enter" = "Entrar";
+"Or" = "Ou";
+"Your first time?" = "Sua primeira vez?";
+"Join us" = "Junte-se a nós";
