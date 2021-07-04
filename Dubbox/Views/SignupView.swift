@@ -1,28 +1,39 @@
 //
-//  LoginView.swift
+//  SignupView.swift
 //  Dubbox
 //
-//  Created by Manoel Filho on 02/07/21.
+//  Created by Manoel Filho on 03/07/21.
 //
 
 import SwiftUI
 
-struct LoginView: View {
+struct SignupView: View {
     
     //MARK: Proprerties
     let defaults = UserDefaults.standard
+    @Environment(\.presentationMode) var presentationMode
     @ObservedObject var userData: UserData
-
+    
+    @State private var name: String = ""
     @State private var email: String = ""
     @State private var password: String = ""
     @State private var showing_password: Bool = false
+    @State private var showing_confirm_password: Bool = false
     @State private var height: CGFloat = 0
-    @State private var showing_signupview: Bool = false
+    @State private var showing_modal: Bool = false
+    @State private var msg_modal: String = ""
     
-    //MARK: Functions
-    func login(){
+    //keyboard
+    @State private var confirme_password: String = ""
+    
+    //MARK: Function
+    func register(){
+        
         let encoder = JSONEncoder()
-        Webservice().login(email: self.email, password: self.password){ result in
+        
+        let user = User(name: self.name, email: self.email, identity: nil, uuid: nil, phone: nil, birthday: nil, created_at: nil, password: self.password)
+        
+        Webservice().register(user: user){ result in
             switch result {
             case .success(let response):
                 
@@ -34,7 +45,18 @@ struct LoginView: View {
                 }
                 
             case .failure(let error):
-                print(error.localizedDescription)
+                
+                switch error {
+                    case .emailAlreadyRegistered:
+                        self.showing_modal = true
+                        self.msg_modal = "Email já registrado"
+                    case .invalidCredentials:
+                        self.msg_modal = "Credenciais inválidas"
+                    case .custom(errorMessage: let errorMessage):
+                        self.msg_modal = errorMessage
+                }
+
+            
             }
         }
     }
@@ -89,11 +111,40 @@ struct LoginView: View {
                                 
                                 VStack{
                                     
+                                    //MARK: Name
+                                    VStack{
+                                        HStack{
+                                            
+                                            Text(LocalizedStringKey("signup_name"))
+                                                .font(.footnote)
+                                                .foregroundColor(Color("font-gray"))
+                                            Spacer()
+                                            
+                                        }
+                                        HStack {
+                            
+                                            Image(systemName: "person")
+                                                .foregroundColor(Color("font-gray"))
+                                            
+                                            TextField(LocalizedStringKey("signup_write_your_name"), text: $name)
+                                                .font(.custom("Nunito-Regular", size: 16))
+                                                .foregroundColor(Color("font-gray"))
+                            
+                                        }
+                                        .padding()
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 10)
+                                                .stroke(lineWidth: 1)
+                                                .foregroundColor(Color("font-gray"))
+                                        )
+                                    }
+                                    // Name
+                                    
                                     //MARK: Email
                                     VStack{
                                         HStack{
                                             
-                                            Text(LocalizedStringKey("login_email"))
+                                            Text(LocalizedStringKey("signup_email"))
                                                 .font(.footnote)
                                                 .foregroundColor(Color("font-gray"))
                                             Spacer()
@@ -104,7 +155,7 @@ struct LoginView: View {
                                             Image(systemName: "envelope")
                                                 .foregroundColor(Color("font-gray"))
                                             
-                                            TextField(LocalizedStringKey("login_write_your_email"), text: $email)
+                                            TextField(LocalizedStringKey("signup_write_your_email"), text: $email)
                                                 .font(.custom("Nunito-Regular", size: 16))
                                                 .foregroundColor(Color("font-gray"))
                                                 .keyboardType(.emailAddress)
@@ -124,7 +175,7 @@ struct LoginView: View {
                                     VStack{
                                         
                                         HStack{
-                                            Text(LocalizedStringKey("login_password"))
+                                            Text(LocalizedStringKey("signup_password"))
                                                 .font(.footnote)
                                                 .foregroundColor(Color("font-gray"))
                                             Spacer()
@@ -135,12 +186,12 @@ struct LoginView: View {
                                             Image(systemName: "lock")
                                                 .foregroundColor(Color("font-gray"))
                                             
-                                            if self.showing_password {
-                                                TextField(LocalizedStringKey("login_write_password"), text: $password)
+                                            if showing_password {
+                                                TextField(LocalizedStringKey("signup_write_your_password"), text: $password)
                                                     .font(.custom("Nunito-Regular", size: 16))
                                                     .foregroundColor(Color("font-gray"))
                                             }else{
-                                                SecureField(LocalizedStringKey("login_write_password"), text: $password)
+                                                SecureField(LocalizedStringKey("signup_write_your_password"), text: $password)
                                                     .font(.custom("Nunito-Regular", size: 16))
                                                     .foregroundColor(Color("font-gray"))
                                             }
@@ -164,18 +215,63 @@ struct LoginView: View {
                                     }
                                     //Password
                                     
-                                    //MARK: Did you lost your password
-                                    HStack{
-                                        Button(
-                                            action: {
-                                                //action
-                                            }
-                                        ){
-                                            Text(LocalizedStringKey("login_did_you_lost_your_password"))
-                                                .font(.custom("Nunito-Regular", size: 15))
-                                                .fontWeight(.bold)
-                                                .foregroundColor(Color("bg"))
+                                    //MARK: Confirm Password
+                                    VStack{
+                                        
+                                        HStack{
+                                            Text(LocalizedStringKey("signup_confirm_password"))
+                                                .font(.footnote)
+                                                .foregroundColor(Color("font-gray"))
                                             Spacer()
+                                        }
+                                        
+                                        HStack {
+                                            
+                                            Image(systemName: "lock")
+                                                .foregroundColor(Color("font-gray"))
+                                            
+                                            if self.showing_confirm_password {
+                                                TextField(LocalizedStringKey("signup_repeat_password"), text: $confirme_password)
+                                                    .font(.custom("Nunito-Regular", size: 16))
+                                                    .foregroundColor(Color("font-gray"))
+                                            }else{
+                                                SecureField(LocalizedStringKey("signup_repeat_password"), text: $confirme_password)
+                                                    .font(.custom("Nunito-Regular", size: 16))
+                                                    .foregroundColor(Color("font-gray"))
+                                            }
+                                            
+                                            Button(
+                                                action:{
+                                                    self.showing_confirm_password.toggle()
+                                                }
+                                            ){
+                                                Image(systemName: self.showing_confirm_password ? "eye" : "eye.slash.fill")
+                                                    .foregroundColor(Color("font-gray"))
+                                            }
+                            
+                                        }
+                                        .padding()
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 10)
+                                                .stroke(lineWidth: 1)
+                                                .foregroundColor(Color("font-gray"))
+                                        )
+                                    }
+                                    //Password
+                                    
+                                    //MARK: ALERT
+                                    HStack{
+                                        if self.showing_modal {
+                                            ZStack(){
+                                                RoundedRectangle(cornerRadius: 10)
+                                                    .frame(height: 50)
+                                                    .accentColor(Color.red)
+                                                
+                                                Text(self.msg_modal)
+                                                    .font(.custom("Nunito-Regular", size: 15))
+                                                    .fontWeight(.regular)
+                                                    .foregroundColor(.white)
+                                            }
                                         }
                                     }
                                     .padding(.top, 10)
@@ -183,7 +279,7 @@ struct LoginView: View {
                                     //MARK: Enter
                                     Button(
                                         action:{
-                                            self.login()
+                                            self.register()
                                         }
                                     ){
                                         ZStack{
@@ -192,45 +288,15 @@ struct LoginView: View {
                                                 .frame(height: 50)
                                                 .accentColor(Color("green-clear"))
                                             
-                                            Text(LocalizedStringKey("login_enter"))
+                                            Text(LocalizedStringKey("signup_create"))
                                                 .font(.custom("Nunito-Regular", size: 20))
                                                 .fontWeight(.regular)
                                                 .foregroundColor(.white)
                                             
                                         }
                                     }
-                                    .padding(.top, 20)
-                                    .disabled(self.email.isEmpty || !self.email.isValidEmail || self.password.isEmpty)
-                                    
-                                    Text(LocalizedStringKey("login_or"))
-                                        .font(.custom("Nunito-Regular", size: 15))
-                                        .foregroundColor(Color("font-gray"))
-                                    
-                                    //MARK: Login with google and facebook
-                                    HStack{
-                                        Spacer()
-                                        
-                                        Button(
-                                            action:{
-                                                //action
-                                            }
-                                        ){
-                                            Image("icon-google")
-                                        }
-                                        .padding(.horizontal)
-                                                                        
-                                        Button(
-                                            action:{
-                                                //action
-                                            }
-                                        ){
-                                            Image("icon-facebook")
-                                        }
-                                        .padding(.horizontal)
-                                        
-                                        Spacer()
-                                    }
-                                    
+                                    .padding(.top, 10)
+                                    .disabled(self.email.isEmpty || !self.email.isValidEmail || self.password.isEmpty || (self.password != self.confirme_password))
                                 }
                                 
                             }
@@ -239,26 +305,6 @@ struct LoginView: View {
                             .background(Color.white)
                             .cornerRadius(10)
                             .shadow(color: Color("transparent"), radius: 6, x: 0, y: 8)
-                            
-                            //MARK: Your first time?
-                            HStack{
-                                Text(LocalizedStringKey("login_your_first_time"))
-                                    .font(.custom("Nunito-Regular", size: 15))
-                                    .foregroundColor(Color("font-gray"))
-                                Button(
-                                    action: {
-                                        self.showing_signupview.toggle()
-                                    }
-                                ){
-                                    Text(LocalizedStringKey("login_join_us"))
-                                        .font(.custom("Nunito-Regular", size: 15))
-                                        .foregroundColor(Color("bg"))
-                                }
-                            }
-                            .padding(.top, 15)
-                            .padding(.bottom, 15)
-                            
-                            Spacer()
                             
                         }
                         .padding(.horizontal, 30)
@@ -272,6 +318,25 @@ struct LoginView: View {
                 .padding(.bottom, UIApplication.shared.windows.first?.safeAreaInsets.bottom)
                 
             }
+            .overlay(
+                Button(action: {
+                    presentationMode.wrappedValue.dismiss()
+                }) {
+                    Text(LocalizedStringKey("signup_login"))
+                        .font(.custom("Nunito-Black", size: 12))
+                        .foregroundColor(.white)
+                        .foregroundColor(Color.white)
+                        .padding(.vertical, 10)
+                        .padding(.horizontal, 30)
+                        .border(Color.white, width: 2)
+                        .cornerRadius(5)
+                }
+                .padding(.leading, 10)
+                .padding(.top, 60)
+                .frame(width: 130, height: 80)
+                ,
+                alignment: .topLeading
+            )
             
         }
         .padding(.bottom, self.height) //move o conteudo para cima de acordo com o valor de height
@@ -288,15 +353,11 @@ struct LoginView: View {
                 self.height = 0
             }
         }
-        .fullScreenCover(isPresented: $showing_signupview){
-            SignupView(userData: self.userData)
-        }
-        
     }
 }
 
-struct LoginView_Previews: PreviewProvider {
+struct SignupView_Previews: PreviewProvider {
     static var previews: some View {
-        LoginView(userData: UserData())
+        SignupView(userData: UserData())
     }
 }

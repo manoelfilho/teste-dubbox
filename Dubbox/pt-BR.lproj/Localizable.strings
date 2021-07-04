@@ -7,13 +7,26 @@
 */
 
 //LOGIN PAGE
+"login_email" = "Email";
+"login_write_your_email" = "Escreva seu email";
+"login_password" = "Senha";
+"login_write_password" = "Digite sua senha";
+"login_did_you_lost_your_password" = "Esqueceu a senha";
+"login_enter" = "Entrar";
+"login_or" = "Ou";
+"login_your_first_time" = "Sua primeira vez?";
+"login_join_us" = "Junte-se a nós";
 
-"Email" = "Email";
-"Write your email" = "Digite seu email";
-"Password" = "Senha";
-"Write your password" = "Digite sua senha";
-"Did you lost your password?" = "Esqueceu a senha?";
-"Enter" = "Entrar";
-"Or" = "Ou";
-"Your first time?" = "Sua primeira vez?";
-"Join us" = "Junte-se a nós";
+//SIGNUP PAGE
+"signup_name" = "Nome";
+"signup_write_your_name" = "Digite seu nome";
+"signup_email" = "Email";
+"signup_write_your_email" = "Digite seu email";
+"signup_password" = "Senha";
+"signup_write_your_password" = "Digite sua senha";
+"signup_confirm_password" = "Confirme sua senha";
+"signup_repeat_password" = "Repita sua senha";
+
+"signup_create" = "Criar";
+"signup_login" = "Login";
+"signup_logout" = "Sair";
